@@ -47,14 +47,22 @@ def main() -> int:
     with open(out_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text + "\n")
 
-    # Verify what was written, byte for byte.
+    # Verify what was written, byte for byte and character for
+    # character: the gate counts characters, so confirm the file
+    # decodes to exactly the entry text plus its newline.
     with open(out_path, "rb") as f:
         written = f.read()
     if written != (text + "\n").encode("utf-8"):
         print("verification failed: entry.txt does not match",
               file=sys.stderr)
         return 1
-    print(f"wrote {out_path}: {len(text)} characters")
+    decoded = written.decode("utf-8")
+    if len(decoded.rstrip("\n")) != len(text):
+        print("verification failed: character count mismatch",
+              file=sys.stderr)
+        return 1
+    print(f"wrote {out_path}: {len(text)} characters, "
+          f"{len(written)} bytes")
     print(text)
     return 0
 
